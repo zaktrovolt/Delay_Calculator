@@ -1,183 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delay Calculator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* Apply Inter font globally */
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        /* Custom scrollbar for better aesthetics (optional) */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-        /* Style for number input arrows (for some browsers) */
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield; /* Firefox */
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Delay Calculator - Win95</title>
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      background-color: #C0C0C0;
+      color: #000;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .window {
+      background-color: #DFDFDF;
+      border: 2px solid #000;
+      width: 500px;
+      margin: 0 auto;
+      padding: 16px;
+      box-shadow: inset -2px -2px 0 #fff, inset 2px 2px 0 #808080;
+    }
+
+    .title-bar {
+      background: #000080;
+      color: #fff;
+      padding: 4px 8px;
+      font-weight: bold;
+      text-align: left;
+    }
+
+    .input-label {
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 5px;
+      margin-top: 4px;
+      border: 2px solid #808080;
+      box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 #404040;
+      background-color: #fff;
+      font-family: 'Tahoma', sans-serif;
+    }
+
+    .section {
+      margin-top: 20px;
+      border: 2px solid #000;
+      padding: 10px;
+      box-shadow: inset -2px -2px 0 #fff, inset 2px 2px 0 #808080;
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #000;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      padding: 2px 0;
+    }
+
+    .delay-value {
+      background: #C0C0C0;
+      padding: 2px 4px;
+      border: 2px outset #fff;
+      font-family: monospace;
+    }
+
+    footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 11px;
+      color: #333;
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 to-slate-800 text-slate-200 flex flex-col items-center justify-center min-h-screen p-4 selection:bg-sky-500 selection:text-white">
+<body>
 
-    <div class="bg-slate-800 shadow-2xl rounded-xl p-6 md:p-8 w-full max-w-lg transform transition-all duration-500 hover:scale-[1.01]">
-        <header class="mb-6 md:mb-8 text-center">
-            <h1 class="text-3xl md:text-4xl font-bold text-sky-400">Tempo-Synced Delay Calculator</h1>
-        </header>
+  <div class="window">
+    <div class="title-bar">Tempo-Synced Delay Calculator</div>
 
-        <div class="mb-6">
-            <label for="bpm" class="block text-sm font-medium text-sky-300 mb-2">Enter BPM:</label>
-            <input type="number" id="bpm" value="0" min="0" max="500" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-slate-50 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors placeholder-slate-500 text-lg">
-        </div>
+    <label for="bpm" class="input-label">Enter BPM:</label>
+    <input type="number" id="bpm" min="0" max="500" />
 
-        <div id="results-container" class="space-y-4">
-            </div>
-
-        <footer class="mt-8 text-center text-xs text-slate-500">
-            <p>&copy; /dmp/ Delay Calculator. All calculations are in milliseconds (ms).</p>
-        </footer>
+    <div id="results-container" class="section" style="margin-top: 16px;">
+      <!-- Delay results go here -->
     </div>
 
-    <script>
-        // --- DOM Element References ---
-        const bpmInput = document.getElementById('bpm');
-        const resultsContainer = document.getElementById('results-container');
-        const currentYearSpan = document.getElementById('currentYear');
+    <footer>
+      &copy; <span id="currentYear"></span> /dmp/ Delay Calculator. All delays shown in milliseconds (ms).
+    </footer>
+  </div>
 
-        // --- Note Definitions ---
-        // Defines the note types, their display names, and how to calculate them.
-        // Calculation is a factor of the quarter note delay.
-        // For triplets, the 'baseNoteFactor' refers to the note that gets divided into three.
-        // e.g., for an 8th note triplet, three notes fit into a 1/4 note, so baseNoteFactor is 1 (for 1/4 note).
-        const noteDefinitions = [
-            // Standard Notes
-            { name: "Whole Note (1/1)", type: "standard", factor: 4 },
-            { name: "Half Note (1/2)", type: "standard", factor: 2 },
-            { name: "Quarter Note (1/4)", type: "standard", factor: 1 },
-            { name: "8th Note (1/8)", type: "standard", factor: 0.5 },
-            { name: "16th Note (1/16)", type: "standard", factor: 0.25 },
-            { name: "32nd Note (1/32)", type: "standard", factor: 0.125 },
-            { name: "64th Note (1/64)", type: "standard", factor: 0.0625 },
+  <script>
+    const bpmInput = document.getElementById('bpm');
+    const resultsContainer = document.getElementById('results-container');
+    const currentYearSpan = document.getElementById('currentYear');
 
-            // Dotted Notes (Standard Note * 1.5)
-            { name: "Dotted Half Note", type: "dotted", factor: 2 * 1.5 },
-            { name: "Dotted Quarter Note", type: "dotted", factor: 1 * 1.5 },
-            { name: "Dotted 8th Note", type: "dotted", factor: 0.5 * 1.5 },
-            { name: "Dotted 16th Note", type: "dotted", factor: 0.25 * 1.5 },
-            { name: "Dotted 32nd Note", type: "dotted", factor: 0.125 * 1.5 },
+    const noteDefinitions = [
+      { name: "Whole Note (1/1)", type: "standard", factor: 4 },
+      { name: "Half Note (1/2)", type: "standard", factor: 2 },
+      { name: "Quarter Note (1/4)", type: "standard", factor: 1 },
+      { name: "8th Note (1/8)", type: "standard", factor: 0.5 },
+      { name: "16th Note (1/16)", type: "standard", factor: 0.25 },
+      { name: "32nd Note (1/32)", type: "standard", factor: 0.125 },
+      { name: "64th Note (1/64)", type: "standard", factor: 0.0625 },
+      { name: "Dotted Half Note", type: "dotted", factor: 2 * 1.5 },
+      { name: "Dotted Quarter Note", type: "dotted", factor: 1 * 1.5 },
+      { name: "Dotted 8th Note", type: "dotted", factor: 0.5 * 1.5 },
+      { name: "Dotted 16th Note", type: "dotted", factor: 0.25 * 1.5 },
+      { name: "Dotted 32nd Note", type: "dotted", factor: 0.125 * 1.5 },
+      { name: "Half Note Triplet (in 1 Whole Note)", type: "triplet", baseNoteFactor: 4, divisor: 3 },
+      { name: "Quarter Note Triplet (in 1 Half Note)", type: "triplet", baseNoteFactor: 2, divisor: 3 },
+      { name: "8th Note Triplet (in 1 Quarter Note)", type: "triplet", baseNoteFactor: 1, divisor: 3 },
+      { name: "16th Note Triplet (in 1 8th Note)", type: "triplet", baseNoteFactor: 0.5, divisor: 3 },
+      { name: "32nd Note Triplet (in 1 16th Note)", type: "triplet", baseNoteFactor: 0.25, divisor: 3 },
+    ];
 
-            // Triplet Notes (One of three notes that fit into the 'baseNoteFactor' duration)
-            // Example: 8th Note Triplet means 3 notes in the time of a 1/4 note.
-            { name: "Half Note Triplet (in 1 Whole Note)", type: "triplet", baseNoteFactor: 4, divisor: 3 }, // 3 notes in a whole note's time
-            { name: "Quarter Note Triplet (in 1 Half Note)", type: "triplet", baseNoteFactor: 2, divisor: 3 }, // 3 notes in a half note's time
-            { name: "8th Note Triplet (in 1 Quarter Note)", type: "triplet", baseNoteFactor: 1, divisor: 3 }, // 3 notes in a quarter note's time
-            { name: "16th Note Triplet (in 1 8th Note)", type: "triplet", baseNoteFactor: 0.5, divisor: 3 }, // 3 notes in an 8th note's time
-            { name: "32nd Note Triplet (in 1 16th Note)", type: "triplet", baseNoteFactor: 0.25, divisor: 3 }, // 3 notes in a 16th note's time
-        ];
+    function calculateAndDisplayDelays() {
+      const bpm = parseFloat(bpmInput.value);
+      if (isNaN(bpm) || bpm <= 0) {
+        resultsContainer.innerHTML = '<p>Enter a valid BPM to see delay times.</p>';
+        return;
+      }
 
-        // --- Calculation Function ---
-        function calculateAndDisplayDelays() {
-            const bpm = parseFloat(bpmInput.value);
+      const quarterNoteDelay = 60000 / bpm;
+      const groupedNotes = { standard: [], dotted: [], triplet: [] };
 
-            // Clear previous results or show placeholder if BPM is invalid
-            if (isNaN(bpm) || bpm <= 0) {
-                resultsContainer.innerHTML = '<p class="text-center text-slate-400">Enter a valid BPM to see delay times.</p>';
-                return;
-            }
-
-            const quarterNoteDelay = 60000 / bpm; // Base calculation for a quarter note in ms
-
-            // Group notes by type for structured display
-            const groupedNotes = {
-                standard: [],
-                dotted: [],
-                triplet: []
-            };
-
-            noteDefinitions.forEach(note => {
-                let delayMs;
-                if (note.type === "triplet") {
-                    delayMs = (quarterNoteDelay * note.baseNoteFactor) / note.divisor;
-                } else {
-                    delayMs = quarterNoteDelay * note.factor;
-                }
-                groupedNotes[note.type].push({ name: note.name, value: delayMs.toFixed(2) });
-            });
-
-            // --- Display Results ---
-            resultsContainer.innerHTML = ''; // Clear previous results
-
-            const createSection = (title, notes) => {
-                if (notes.length === 0) return;
-
-                const sectionEl = document.createElement('div');
-                sectionEl.className = 'bg-slate-700/50 p-4 rounded-lg shadow';
-
-                const titleEl = document.createElement('h3');
-                titleEl.className = 'text-lg font-semibold text-sky-400 mb-3 border-b border-slate-600 pb-2';
-                titleEl.textContent = title;
-                sectionEl.appendChild(titleEl);
-
-                const listEl = document.createElement('ul');
-                listEl.className = 'space-y-2';
-
-                notes.forEach(note => {
-                    const listItemEl = document.createElement('li');
-                    listItemEl.className = 'flex justify-between items-center text-sm';
-
-                    const nameSpan = document.createElement('span');
-                    nameSpan.textContent = note.name + ":";
-                    nameSpan.className = 'text-slate-300';
-
-                    const valueSpan = document.createElement('span');
-                    valueSpan.textContent = `${note.value} ms`;
-                    valueSpan.className = 'font-semibold text-sky-300 bg-slate-600 px-2 py-1 rounded-md text-xs';
-
-                    listItemEl.appendChild(nameSpan);
-                    listItemEl.appendChild(valueSpan);
-                    listEl.appendChild(listItemEl);
-                });
-
-                sectionEl.appendChild(listEl);
-                resultsContainer.appendChild(sectionEl);
-            };
-
-            createSection('Standard Note Delays', groupedNotes.standard);
-            createSection('Dotted Note Delays', groupedNotes.dotted);
-            createSection('Triplet Note Delays', groupedNotes.triplet);
+      noteDefinitions.forEach(note => {
+        let delayMs;
+        if (note.type === "triplet") {
+          delayMs = (quarterNoteDelay * note.baseNoteFactor) / note.divisor;
+        } else {
+          delayMs = quarterNoteDelay * note.factor;
         }
+        groupedNotes[note.type].push({ name: note.name, value: delayMs.toFixed(2) });
+      });
 
-        // --- Event Listeners ---
-        bpmInput.addEventListener('input', calculateAndDisplayDelays);
-        // Add event listener for 'change' as well, in case user uses arrow keys and blurs.
-        bpmInput.addEventListener('change', calculateAndDisplayDelays);
-
-
-        // --- Initial Setup ---
-        document.addEventListener('DOMContentLoaded', () => {
-            currentYearSpan.textContent = new Date().getFullYear(); // Set current year in footer
-            calculateAndDisplayDelays(); // Perform initial calculation on page load
+      const createSection = (title, notes) => {
+        if (notes.length === 0) return '';
+        let html = `<div class="section-title">${title}</div>`;
+        notes.forEach(note => {
+          html += `
+            <div class="list-item">
+              <span>${note.name}</span>
+              <span class="delay-value">${note.value} ms</span>
+            </div>`;
         });
-    </script>
+        return html;
+      };
+
+      resultsContainer.innerHTML =
+        createSection("Standard Note Delays", groupedNotes.standard) +
+        createSection("Dotted Note Delays", groupedNotes.dotted) +
+        createSection("Triplet Note Delays", groupedNotes.triplet);
+    }
+
+    bpmInput.addEventListener('input', calculateAndDisplayDelays);
+    bpmInput.addEventListener('change', calculateAndDisplayDelays);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      currentYearSpan.textContent = new Date().getFullYear();
+      calculateAndDisplayDelays();
+    });
+  </script>
 
 </body>
 </html>
