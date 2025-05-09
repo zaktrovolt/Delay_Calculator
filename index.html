@@ -88,6 +88,10 @@
 
     <label for="bpm" class="input-label">Enter BPM:</label>
     <input type="number" id="bpm" min="0" max="500" />
+	<label class="input-label" style="display: flex; align-items: center; gap: 8px; margin-top: 16px;">
+	<input type="checkbox" id="roundToggle" checked />
+	Round to whole numbers
+	</label>
 
     <div id="results-container" class="section" style="margin-top: 16px;">
       <!-- Delay results go here -->
@@ -99,77 +103,84 @@
   </div>
 
   <script>
-    const bpmInput = document.getElementById('bpm');
-    const resultsContainer = document.getElementById('results-container');
-    const currentYearSpan = document.getElementById('currentYear');
+  const bpmInput = document.getElementById('bpm');
+  const resultsContainer = document.getElementById('results-container');
+  const roundToggle = document.getElementById('roundToggle');
+  const currentYearSpan = document.getElementById('currentYear');
 
-    const noteDefinitions = [
-      { name: "Whole Note (1/1)", type: "standard", factor: 4 },
-      { name: "Half Note (1/2)", type: "standard", factor: 2 },
-      { name: "Quarter Note (1/4)", type: "standard", factor: 1 },
-      { name: "8th Note (1/8)", type: "standard", factor: 0.5 },
-      { name: "16th Note (1/16)", type: "standard", factor: 0.25 },
-      { name: "32nd Note (1/32)", type: "standard", factor: 0.125 },
-      { name: "64th Note (1/64)", type: "standard", factor: 0.0625 },
-      { name: "Dotted Half Note", type: "dotted", factor: 2 * 1.5 },
-      { name: "Dotted Quarter Note", type: "dotted", factor: 1 * 1.5 },
-      { name: "Dotted 8th Note", type: "dotted", factor: 0.5 * 1.5 },
-      { name: "Dotted 16th Note", type: "dotted", factor: 0.25 * 1.5 },
-      { name: "Dotted 32nd Note", type: "dotted", factor: 0.125 * 1.5 },
-      { name: "Half Note Triplet (in 1 Whole Note)", type: "triplet", baseNoteFactor: 4, divisor: 3 },
-      { name: "Quarter Note Triplet (in 1 Half Note)", type: "triplet", baseNoteFactor: 2, divisor: 3 },
-      { name: "8th Note Triplet (in 1 Quarter Note)", type: "triplet", baseNoteFactor: 1, divisor: 3 },
-      { name: "16th Note Triplet (in 1 8th Note)", type: "triplet", baseNoteFactor: 0.5, divisor: 3 },
-      { name: "32nd Note Triplet (in 1 16th Note)", type: "triplet", baseNoteFactor: 0.25, divisor: 3 },
-    ];
+  const noteDefinitions = [
+    { name: "Whole Note (1/1)", type: "standard", factor: 4 },
+    { name: "Half Note (1/2)", type: "standard", factor: 2 },
+    { name: "Quarter Note (1/4)", type: "standard", factor: 1 },
+    { name: "8th Note (1/8)", type: "standard", factor: 0.5 },
+    { name: "16th Note (1/16)", type: "standard", factor: 0.25 },
+    { name: "32nd Note (1/32)", type: "standard", factor: 0.125 },
+    { name: "64th Note (1/64)", type: "standard", factor: 0.0625 },
+    { name: "Dotted Half Note", type: "dotted", factor: 2 * 1.5 },
+    { name: "Dotted Quarter Note", type: "dotted", factor: 1 * 1.5 },
+    { name: "Dotted 8th Note", type: "dotted", factor: 0.5 * 1.5 },
+    { name: "Dotted 16th Note", type: "dotted", factor: 0.25 * 1.5 },
+    { name: "Dotted 32nd Note", type: "dotted", factor: 0.125 * 1.5 },
+    { name: "Half Note Triplet (in 1 Whole Note)", type: "triplet", baseNoteFactor: 4, divisor: 3 },
+    { name: "Quarter Note Triplet (in 1 Half Note)", type: "triplet", baseNoteFactor: 2, divisor: 3 },
+    { name: "8th Note Triplet (in 1 Quarter Note)", type: "triplet", baseNoteFactor: 1, divisor: 3 },
+    { name: "16th Note Triplet (in 1 8th Note)", type: "triplet", baseNoteFactor: 0.5, divisor: 3 },
+    { name: "32nd Note Triplet (in 1 16th Note)", type: "triplet", baseNoteFactor: 0.25, divisor: 3 },
+  ];
 
-    function calculateAndDisplayDelays() {
-      const bpm = parseFloat(bpmInput.value);
-      if (isNaN(bpm) || bpm <= 0) {
-        resultsContainer.innerHTML = '<p>Enter a valid BPM to see delay times.</p>';
-        return;
-      }
+  function calculateAndDisplayDelays() {
+    const bpm = parseFloat(bpmInput.value);
+    const roundValues = roundToggle.checked;
 
-      const quarterNoteDelay = 60000 / bpm;
-      const groupedNotes = { standard: [], dotted: [], triplet: [] };
-
-      noteDefinitions.forEach(note => {
-        let delayMs;
-        if (note.type === "triplet") {
-          delayMs = (quarterNoteDelay * note.baseNoteFactor) / note.divisor;
-        } else {
-          delayMs = quarterNoteDelay * note.factor;
-        }
-        groupedNotes[note.type].push({ name: note.name, value: delayMs.toFixed(2) });
-      });
-
-      const createSection = (title, notes) => {
-        if (notes.length === 0) return '';
-        let html = `<div class="section-title">${title}</div>`;
-        notes.forEach(note => {
-          html += `
-            <div class="list-item">
-              <span>${note.name}</span>
-              <span class="delay-value">${note.value} ms</span>
-            </div>`;
-        });
-        return html;
-      };
-
-      resultsContainer.innerHTML =
-        createSection("Standard Note Delays", groupedNotes.standard) +
-        createSection("Dotted Note Delays", groupedNotes.dotted) +
-        createSection("Triplet Note Delays", groupedNotes.triplet);
+    if (isNaN(bpm) || bpm <= 0) {
+      resultsContainer.innerHTML = '<p>Enter a valid BPM to see delay times.</p>';
+      return;
     }
 
-    bpmInput.addEventListener('input', calculateAndDisplayDelays);
-    bpmInput.addEventListener('change', calculateAndDisplayDelays);
+    const quarterNoteDelay = 60000 / bpm;
+    const groupedNotes = { standard: [], dotted: [], triplet: [] };
 
-    document.addEventListener('DOMContentLoaded', () => {
-      currentYearSpan.textContent = new Date().getFullYear();
-      calculateAndDisplayDelays();
+    noteDefinitions.forEach(note => {
+      let delayMs;
+      if (note.type === "triplet") {
+        delayMs = (quarterNoteDelay * note.baseNoteFactor) / note.divisor;
+      } else {
+        delayMs = quarterNoteDelay * note.factor;
+      }
+
+      const displayValue = roundValues ? Math.round(delayMs) : delayMs.toFixed(2);
+      groupedNotes[note.type].push({ name: note.name, value: displayValue });
     });
-  </script>
+
+    const createSection = (title, notes) => {
+      if (notes.length === 0) return '';
+      let html = `<div class="section-title">${title}</div>`;
+      notes.forEach(note => {
+        html += `
+          <div class="list-item">
+            <span>${note.name}</span>
+            <span class="delay-value">${note.value} ms</span>
+          </div>`;
+      });
+      return html;
+    };
+
+    resultsContainer.innerHTML =
+      createSection("Standard Note Delays", groupedNotes.standard) +
+      createSection("Dotted Note Delays", groupedNotes.dotted) +
+      createSection("Triplet Note Delays", groupedNotes.triplet);
+  }
+
+  bpmInput.addEventListener('input', calculateAndDisplayDelays);
+  bpmInput.addEventListener('change', calculateAndDisplayDelays);
+  roundToggle.addEventListener('change', calculateAndDisplayDelays);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    currentYearSpan.textContent = new Date().getFullYear();
+    calculateAndDisplayDelays();
+  });
+</script>
+
 
 </body>
 </html>
