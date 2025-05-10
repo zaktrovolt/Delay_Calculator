@@ -7,12 +7,9 @@
   <style>
     body {
       font-family: 'Tahoma', sans-serif;
-      background-color: #C0C0C0;
-      color: #000;
-      margin: 0;
-      padding: 20px;
-    }
-
+	  background-image:linear-gradient(rgba(0, 0, 0, 0.6)),repeating-linear-gradient(45deg, #606dbc, #606dbc 5px, #465298 5px, #465298 20px), url(data:image/png;base64,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);	  
+	  background-blend-mode: multiply;
+	  }
     .window {
       background-color: #DFDFDF;
       border: 2px solid #000;
@@ -96,7 +93,7 @@
     <div id="results-container" class="section" style="margin-top: 16px;">
       <!-- Delay results go here -->
     </div>
-
+	
     <footer>
       &copy; <span id="currentYear"></span> /dmp/ Delay Calculator. All delays shown in milliseconds (ms).
     </footer>
@@ -127,7 +124,11 @@
     { name: "16th Note Triplet (in 1 8th Note)", type: "triplet", baseNoteFactor: 0.5, divisor: 3 },
     { name: "32nd Note Triplet (in 1 16th Note)", type: "triplet", baseNoteFactor: 0.25, divisor: 3 },
   ];
-
+	let hue = 0;
+  setInterval(() => {
+    hue = (hue + 1) % 360;
+    document.body.style.filter = `hue-rotate(${hue}deg)`;
+  }, 100);
   function calculateAndDisplayDelays() {
     const bpm = parseFloat(bpmInput.value);
     const roundValues = roundToggle.checked;
